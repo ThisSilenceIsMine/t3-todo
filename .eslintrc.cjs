@@ -14,6 +14,7 @@ const config = {
       },
     },
   ],
+  ignorePatterns: ["./tailwind.config.js"],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     project: path.join(__dirname, "tsconfig.json"),
