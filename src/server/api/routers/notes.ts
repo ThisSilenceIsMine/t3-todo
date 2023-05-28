@@ -15,6 +15,10 @@ const createNoteInput = z.object({
   ),
 });
 
+const removeNoteInput = z.object({
+  id: z.string(),
+});
+
 const updateNoteInput = z.object({
   id: z.string(),
   title: z.string().optional(),
@@ -50,7 +54,29 @@ export const noteRouter = createTRPCRouter({
       console.log("created:", { note });
     }),
 
-  // remove: publicProcedure.input(z.string()).mutation(async ({ input }) => {
+  remove: publicProcedure
+    .input(removeNoteInput)
+    .mutation(async ({ input, ctx }) => {
+      const user = await getUserOrCreate(ctx.deviceId);
+
+      const note = await prisma.note.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!note) {
+        throw new Error("Note not found");
+      }
+
+      if (note.userId !== user.id) {
+        throw new Error("Unauthorized");
+      }
+
+      await prisma.note.delete({
+        where: { id: input.id },
+      });
+
+      return true;
+    }),
 
   getAll: publicProcedure.query(async ({ ctx }) => {
     if (!ctx.deviceId) {
