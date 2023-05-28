@@ -33,7 +33,7 @@ export const NoteForm = ({ onSubmit }: Props) => {
   };
 
   return (
-    <Card.Card className="min-w-[375px] bg-slate-600">
+    <Card.Card className="min-w-[375px]">
       <Card.CardHeader>
         <Card.CardTitle>Create new note</Card.CardTitle>
       </Card.CardHeader>
@@ -68,26 +68,3 @@ export const NoteForm = ({ onSubmit }: Props) => {
     </Card.Card>
   );
 };
-
-/*
-
-    <Card.Card className="min-w-[375px]">
-      <Card.CardHeader>
-        <Card.CardTitle>Create new note</Card.CardTitle>
-      </Card.CardHeader>
-      <Card.CardContent className="flex flex-col gap-4">
-        <div>
-          <Label htmlFor="title">Title</Label>
-          <Input id="title" />
-        </div>
-        <div>
-          <Label htmlFor="content">Content</Label>
-          <Textarea id="content" />
-        </div>
-      </Card.CardContent>
-
-      <Card.CardFooter>
-        <Button className="w-full">Submit</Button>
-      </Card.CardFooter>
-    </Card.Card>
-*/
