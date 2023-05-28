@@ -5,7 +5,6 @@ import { prisma } from "~/server/db";
 import { getUserOrCreate } from "../util/getUser";
 
 const createNoteInput = z.object({
-  deviceId: z.string().uuid(),
   title: z.string().optional(),
   content: z.string(),
   todos: z.array(
@@ -16,12 +15,7 @@ const createNoteInput = z.object({
   ),
 });
 
-const getAllNotesInput = z.object({
-  deviceId: z.string().uuid(),
-});
-
 const updateNoteInput = z.object({
-  deviceId: z.string().uuid(),
   id: z.string(),
   title: z.string().optional(),
   content: z.string().optional(),
@@ -37,25 +31,33 @@ const updateNoteInput = z.object({
 });
 
 export const noteRouter = createTRPCRouter({
-  create: publicProcedure.input(createNoteInput).mutation(async ({ input }) => {
-    const user = await getUserOrCreate(input.deviceId);
+  create: publicProcedure
+    .input(createNoteInput)
+    .mutation(async ({ input, ctx }) => {
+      const user = await getUserOrCreate(ctx.deviceId);
 
-    const note = await prisma.note.create({
-      data: {
-        title: input.title,
-        content: input.content,
-        todos: {
-          create: input.todos,
+      const note = await prisma.note.create({
+        data: {
+          title: input.title,
+          content: input.content,
+          todos: {
+            create: input.todos,
+          },
+          userId: user?.id,
         },
-        userId: user?.id,
-      },
-    });
+      });
 
-    console.log("created:", { note });
-  }),
+      console.log("created:", { note });
+    }),
 
-  getAll: publicProcedure.input(getAllNotesInput).query(async ({ input }) => {
-    const user = await getUserOrCreate(input.deviceId);
+  // remove: publicProcedure.input(z.string()).mutation(async ({ input }) => {
+
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    if (!ctx.deviceId) {
+      throw new Error("Unauthorized");
+    }
+
+    const user = await getUserOrCreate(ctx.deviceId);
 
     return await prisma.note.findMany({
       where: {
@@ -67,39 +69,41 @@ export const noteRouter = createTRPCRouter({
     });
   }),
 
-  update: publicProcedure.input(updateNoteInput).mutation(async ({ input }) => {
-    const user = await getUserOrCreate(input.deviceId);
+  update: publicProcedure
+    .input(updateNoteInput)
+    .mutation(async ({ input, ctx }) => {
+      const user = await getUserOrCreate(ctx.deviceId);
 
-    const note = await prisma.note.findUnique({
-      where: {
-        id: input.id,
-      },
-    });
+      const note = await prisma.note.findUnique({
+        where: {
+          id: input.id,
+        },
+      });
 
-    if (note?.userId !== user?.id) {
-      throw new Error("You are not the owner of this note");
-    }
+      if (note?.userId !== user?.id) {
+        throw new Error("You are not the owner of this note");
+      }
 
-    await prisma.note.update({
-      where: {
-        id: input.id,
-      },
-      data: {
-        title: input.title,
-        content: input.content,
-        ...(input.todos &&
-          input.todos.length > 0 && {
-            todos: {
-              upsert: input.todos.map((todo) => ({
-                where: {
-                  id: todo.id,
-                },
-                update: todo,
-                create: todo,
-              })),
-            },
-          }),
-      },
-    });
-  }),
+      await prisma.note.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          title: input.title,
+          content: input.content,
+          ...(input.todos &&
+            input.todos.length > 0 && {
+              todos: {
+                upsert: input.todos.map((todo) => ({
+                  where: {
+                    id: todo.id,
+                  },
+                  update: todo,
+                  create: todo,
+                })),
+              },
+            }),
+        },
+      });
+    }),
 });

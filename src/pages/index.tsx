@@ -1,39 +1,14 @@
-import { Prisma } from "@prisma/client";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { NoteCard } from "~/components/NoteCard";
 import { NoteForm } from "~/components/NoteForm/NoteForm";
-import { ToDoList } from "~/components/NoteForm/ToDo/ToDoList";
-import { deviceId } from "~/lib/deviceId";
-import { Note, ToDo } from "~/lib/types";
+import type { Note, ToDo } from "~/lib/types";
 import { api } from "~/utils/api";
 
-const mockTodos = [
-  {
-    id: "1",
-    label: "Buy milk",
-    done: false,
-  },
-  {
-    id: "2",
-    label: "Buy eggs",
-    done: false,
-  },
-  {
-    id: "3",
-    label: "Buy bread",
-    done: false,
-  },
-];
-
 const Home: NextPage = () => {
-  // const hello = api.example.hello.useQuery({ text: "from tRPC" });
-
   const create = api.note.create.useMutation();
 
-  const getNotes = api.note.getAll.useQuery({
-    deviceId: deviceId(),
-  });
+  const getNotes = api.note.getAll.useQuery();
 
   const notes = getNotes.data;
 
@@ -43,7 +18,6 @@ const Home: NextPage = () => {
     create.mutate({
       ...note,
       title: note.title ?? undefined,
-      deviceId: deviceId(),
       todos,
     });
   };

@@ -30,9 +30,16 @@ type CreateContextOptions = Record<string, never>;
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-const createInnerTRPCContext = (_opts: CreateContextOptions) => {
+const createInnerTRPCContext = (opts: CreateNextContextOptions) => {
+  const deviceId = opts.req.headers.authorization;
+
+  if (!deviceId) {
+    throw new Error("Unauthorized");
+  }
+
   return {
     prisma,
+    deviceId,
   };
 };
 
@@ -42,8 +49,8 @@ const createInnerTRPCContext = (_opts: CreateContextOptions) => {
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = (_opts: CreateNextContextOptions) => {
-  return createInnerTRPCContext({});
+export const createTRPCContext = (opts: CreateNextContextOptions) => {
+  return createInnerTRPCContext(opts);
 };
 
 /**
@@ -92,4 +99,5 @@ export const createTRPCRouter = t.router;
  * guarantee that a user querying is authorized, but you can still access user session data if they
  * are logged in.
  */
+
 export const publicProcedure = t.procedure;
