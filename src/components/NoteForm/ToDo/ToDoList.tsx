@@ -67,9 +67,8 @@ export const ToDoList = ({ todos = [], onChange, className }: Props) => {
               )}
             >
               {todo.label}
-
-              <X onClick={handleRemove(i)} className="cursor-pointer" />
             </Label>
+            <X onClick={handleRemove(i)} className="cursor-pointer" />
           </div>
         ))}
       </div>

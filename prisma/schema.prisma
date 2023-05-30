@@ -36,7 +36,7 @@ model ToDo {
     label     String
     done      Boolean  @default(false)
     noteId    String
-    note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+    note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }

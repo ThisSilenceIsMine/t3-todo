@@ -106,6 +106,29 @@ export const noteRouter = createTRPCRouter({
         },
       });
 
+      const todos = await prisma.toDo.findMany({
+        where: {
+          noteId: input.id,
+        },
+      });
+
+      //remove all todos that are not in the input
+      const inputToDos = input.todos?.map((t) => t.id);
+
+      if (typeof inputToDos !== "undefined") {
+        const todosToDelete = todos.filter(
+          (todo) => !inputToDos.find((id) => id === todo.id)
+        );
+
+        await prisma.toDo.deleteMany({
+          where: {
+            id: {
+              in: todosToDelete.map((t) => t.id),
+            },
+          },
+        });
+      }
+
       if (note?.userId !== user?.id) {
         throw new Error("You are not the owner of this note");
       }
