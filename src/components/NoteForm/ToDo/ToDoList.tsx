@@ -10,9 +10,10 @@ import { Cross, CrossIcon, X } from "lucide-react";
 type Props = {
   todos: ToDo[];
   onChange?: (todos: ToDo[]) => void;
+  className?: string;
 };
 
-export const ToDoList = ({ todos = [], onChange }: Props) => {
+export const ToDoList = ({ todos = [], onChange, className }: Props) => {
   const handleChange = (idx: number) => (checked: boolean) =>
     pipe(
       todos,
@@ -44,34 +45,36 @@ export const ToDoList = ({ todos = [], onChange }: Props) => {
     );
 
   return (
-    <div className="flex flex-col gap-2">
-      {todos.map((todo, i) => (
-        <div
-          key={todo.id ?? todo.label ?? i}
-          className="flex items-center gap-2"
-        >
-          <Checkbox
-            id={`label-${todo.id ?? todo.label ?? ""}`}
-            checked={todo.done}
-            onCheckedChange={handleChange(i)}
-          />
-          <Label
-            htmlFor={`label-${todo.id ?? todo.label ?? ""}`}
-            className={clsx(
-              {
-                "line-through": todo.done,
-              },
-              "flex w-full items-center justify-between gap-2"
-            )}
+    <div className={clsx("flex flex-col gap-2", className)}>
+      <div className="flex max-h-36 flex-col gap-2 overflow-auto">
+        {todos.map((todo, i) => (
+          <div
+            key={todo.id ?? todo.label ?? i}
+            className="p-x-2 flex items-center gap-2"
           >
-            {todo.label}
+            <Checkbox
+              id={`label-${todo.id ?? todo.label ?? ""}`}
+              checked={todo.done}
+              onCheckedChange={handleChange(i)}
+            />
+            <Label
+              htmlFor={`label-${todo.id ?? todo.label ?? ""}`}
+              className={clsx(
+                {
+                  "line-through": todo.done,
+                },
+                "flex w-full items-center justify-between gap-2"
+              )}
+            >
+              {todo.label}
 
-            <X onClick={handleRemove(i)} className="cursor-pointer" />
-          </Label>
-        </div>
-      ))}
+              <X onClick={handleRemove(i)} className="cursor-pointer" />
+            </Label>
+          </div>
+        ))}
+      </div>
 
-      <Input placeholder="Buy milk" onBlur={handleAdd} />
+      <Input className="mt-auto" placeholder="Buy milk" onBlur={handleAdd} />
     </div>
   );
 };

@@ -115,20 +115,19 @@ export const noteRouter = createTRPCRouter({
           id: input.id,
         },
         data: {
-          title: input.title,
-          content: input.content,
-          ...(input.todos &&
-            input.todos.length > 0 && {
-              todos: {
-                upsert: input.todos.map((todo) => ({
-                  where: {
-                    id: todo.id,
-                  },
-                  update: todo,
-                  create: todo,
-                })),
-              },
-            }),
+          ...(input.title && { title: input.title }),
+          ...(input.content && { content: input.content }),
+          ...(input.todos && {
+            todos: {
+              upsert: input.todos.map(({ id, ...todo }) => ({
+                where: {
+                  id: id,
+                },
+                update: todo,
+                create: todo,
+              })),
+            },
+          }),
         },
       });
     }),

@@ -23,6 +23,11 @@ export const NoteForm = ({ onSubmit }: Props) => {
   };
 
   const handleSubmit = () => {
+    if (title === "" || content === "") {
+      alert("Title and content are required");
+      return;
+    }
+
     onSubmit?.(
       {
         title,
@@ -30,6 +35,10 @@ export const NoteForm = ({ onSubmit }: Props) => {
       },
       todos
     );
+
+    setTitle("");
+    setContent("");
+    setTodos([]);
   };
 
   return (
