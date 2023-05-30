@@ -13,10 +13,14 @@ type Props = {
 
 export const NoteCard = ({ note, onChange, onRemove }: Props): JSX.Element => {
   return (
-    <Card.Card className="max-h-80 w-80">
-      <Card.CardHeader>
+    <Card.Card className="flex max-h-80 w-80 flex-col justify-between">
+      <Card.CardHeader className="h-[40%]">
         <Card.CardTitle className="flex items-center justify-between">
-          {note.title}
+          <input
+            type="text"
+            defaultValue={note.title ?? ""}
+            onBlur={(e) => onChange?.({ ...note, title: e.target.value })}
+          />
           <X
             className="cursor-pointer"
             color="gray"
@@ -24,7 +28,13 @@ export const NoteCard = ({ note, onChange, onRemove }: Props): JSX.Element => {
             onClick={onRemove}
           />
         </Card.CardTitle>
-        <Card.CardDescription>{note.content}</Card.CardDescription>
+        <Card.CardDescription className="block max-h-12 flex-1">
+          <textarea
+            className="h-full w-full resize-none"
+            defaultValue={note.content ?? ""}
+            onBlur={(e) => onChange?.({ ...note, content: e.target.value })}
+          />
+        </Card.CardDescription>
       </Card.CardHeader>
       <Card.CardContent>
         <ToDoList
