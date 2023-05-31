@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { prisma } from "~/server/db";
 import { getUserOrCreate } from "../util/getUser";
+import { randomUUID } from "crypto";
 
 const createNoteInput = z.object({
   title: z.string().optional(),
@@ -26,7 +27,7 @@ const updateNoteInput = z.object({
   todos: z
     .array(
       z.object({
-        id: z.string(),
+        id: z.string().optional(),
         done: z.boolean(),
         label: z.string(),
       })
@@ -144,7 +145,7 @@ export const noteRouter = createTRPCRouter({
             todos: {
               upsert: input.todos.map(({ id, ...todo }) => ({
                 where: {
-                  id: id,
+                  id: id ?? randomUUID(),
                 },
                 update: todo,
                 create: todo,

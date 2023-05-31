@@ -6,6 +6,7 @@ import { Input } from "~/components/ui/input";
 import type { FocusEventHandler } from "react";
 import clsx from "clsx";
 import { X } from "lucide-react";
+import * as uuid from "uuid";
 
 type Props = {
   todos: ToDo[];
@@ -14,18 +15,22 @@ type Props = {
 };
 
 export const ToDoList = ({ todos = [], onChange, className }: Props) => {
-  const handleChange = (idx: number) => (input: Partial<ToDo>) =>
+  const handleChange = (id: string) => (input: Partial<ToDo>) =>
     pipe(
       todos,
-      A.updateAt(idx, (todo) => ({ ...todo, ...input })),
+      // A.updateAt(id, (todo) => ({ ...todo, ...input })),
+      A.updateAt(
+        todos.findIndex((todo) => todo.id === id),
+        (todo) => ({ ...todo, ...input })
+      ),
       A.sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0)),
       O.mapNullable((v) => pipe(v, onChange ?? F.identity))
     );
 
-  const handleRemove = (idx: number) => () =>
+  const handleRemove = (id: string) => () =>
     pipe(
       todos,
-      A.removeAt(idx),
+      A.removeAt(todos.findIndex((todo) => todo.id === id)),
       O.mapNullable((v) => pipe(v, onChange ?? F.identity))
     );
 
@@ -35,6 +40,7 @@ export const ToDoList = ({ todos = [], onChange, className }: Props) => {
       O.filter((v) => v !== ""),
       O.map((label) => ({
         label,
+        id: uuid.v4(),
         done: false,
       })),
       O.map(A.append<ToDo>),
@@ -47,34 +53,43 @@ export const ToDoList = ({ todos = [], onChange, className }: Props) => {
   return (
     <div className={clsx("flex flex-col gap-2", className)}>
       <div className="flex max-h-36 flex-col gap-2 overflow-auto">
-        {todos.map((todo, i) => (
-          <div
-            key={todo.id ?? todo.label ?? i}
-            className="p-x-2 flex items-center gap-2"
-          >
-            <Checkbox
-              id={`label-${todo.id ?? todo.label ?? ""}`}
-              checked={todo.done}
-              onCheckedChange={(done: boolean) => handleChange(i)({ done })}
-            />
-            <Label
-              htmlFor={`label-${todo.id ?? todo.label ?? ""}`}
-              className={clsx(
-                {
-                  "line-through": todo.done,
-                },
-                "flex w-full items-center justify-between gap-2"
-              )}
+        {A.sort(todos, (a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0)).map(
+          (todo, i) => (
+            <div
+              key={todo.id ?? todo.label ?? i}
+              className="p-x-2 flex items-center gap-2"
             >
-              <input
-                type="text"
-                defaultValue={todo.label}
-                onBlur={(e) => handleChange(i)({ label: e.target.value })}
+              <Checkbox
+                id={`label-${todo.id ?? todo.label ?? ""}`}
+                checked={todo.done}
+                onCheckedChange={(done: boolean) =>
+                  todo.id && handleChange(todo.id)({ done })
+                }
               />
-            </Label>
-            <X onClick={handleRemove(i)} className="cursor-pointer" />
-          </div>
-        ))}
+              <Label
+                htmlFor={`label-${todo.id ?? todo.label ?? ""}`}
+                className={clsx(
+                  "flex w-full items-center justify-between gap-2"
+                )}
+              >
+                <input
+                  type="text"
+                  defaultValue={todo.label}
+                  className={
+                    todo.done ? "text-gray-400 line-through" : undefined
+                  }
+                  onBlur={(e) =>
+                    todo.id && handleChange(todo.id)({ label: e.target.value })
+                  }
+                />
+              </Label>
+              <X
+                onClick={todo.id ? handleRemove(todo.id) : undefined}
+                className="cursor-pointer"
+              />
+            </div>
+          )
+        )}
       </div>
 
       <Input className="mt-auto" placeholder="Buy milk" onBlur={handleAdd} />

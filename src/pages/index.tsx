@@ -41,6 +41,13 @@ const Home: NextPage = () => {
     update.mutate({ ...note, title: note.title ?? undefined });
   };
 
+  const isAnyQueryRunning =
+    getNotes.isLoading ||
+    getNotes.isFetching ||
+    create.isLoading ||
+    remove.isLoading ||
+    update.isLoading;
+
   return (
     <>
       <Head>
@@ -52,7 +59,7 @@ const Home: NextPage = () => {
       <main
         className={clsx(
           "flex h-screen w-screen flex-col items-center",
-          (getNotes.isLoading || getNotes.isFetching) && "cursor-wait"
+          isAnyQueryRunning && "cursor-wait"
         )}
       >
         <NoteForm onSubmit={createNote} />
