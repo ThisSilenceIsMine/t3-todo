@@ -5,7 +5,7 @@ import type { ToDo } from "~/lib/types";
 import { Input } from "~/components/ui/input";
 import type { FocusEventHandler } from "react";
 import clsx from "clsx";
-import { Cross, CrossIcon, X } from "lucide-react";
+import { X } from "lucide-react";
 
 type Props = {
   todos: ToDo[];
@@ -14,10 +14,10 @@ type Props = {
 };
 
 export const ToDoList = ({ todos = [], onChange, className }: Props) => {
-  const handleChange = (idx: number) => (checked: boolean) =>
+  const handleChange = (idx: number) => (input: Partial<ToDo>) =>
     pipe(
       todos,
-      A.updateAt(idx, (todo) => ({ ...todo, done: checked })),
+      A.updateAt(idx, (todo) => ({ ...todo, ...input })),
       A.sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0)),
       O.mapNullable((v) => pipe(v, onChange ?? F.identity))
     );
@@ -55,7 +55,7 @@ export const ToDoList = ({ todos = [], onChange, className }: Props) => {
             <Checkbox
               id={`label-${todo.id ?? todo.label ?? ""}`}
               checked={todo.done}
-              onCheckedChange={handleChange(i)}
+              onCheckedChange={(done: boolean) => handleChange(i)({ done })}
             />
             <Label
               htmlFor={`label-${todo.id ?? todo.label ?? ""}`}
@@ -66,7 +66,11 @@ export const ToDoList = ({ todos = [], onChange, className }: Props) => {
                 "flex w-full items-center justify-between gap-2"
               )}
             >
-              {todo.label}
+              <input
+                type="text"
+                defaultValue={todo.label}
+                onBlur={(e) => handleChange(i)({ label: e.target.value })}
+              />
             </Label>
             <X onClick={handleRemove(i)} className="cursor-pointer" />
           </div>
