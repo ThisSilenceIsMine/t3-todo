@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { NoteCard } from "~/components/NoteCard";
@@ -48,7 +49,12 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex h-screen w-screen flex-col items-center">
+      <main
+        className={clsx(
+          "flex h-screen w-screen flex-col items-center",
+          (getNotes.isLoading || getNotes.isFetching) && "cursor-wait"
+        )}
+      >
         <NoteForm onSubmit={createNote} />
         <div className="mt-4 grid max-h-[calc(100vh-64px)] flex-1 grid-cols-3 flex-col justify-items-center gap-4 overflow-y-auto p-2">
           {notes?.map((note) => (
