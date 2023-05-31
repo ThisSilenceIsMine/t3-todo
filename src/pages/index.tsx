@@ -63,7 +63,7 @@ const Home: NextPage = () => {
         )}
       >
         <NoteForm onSubmit={createNote} />
-        <div className="mt-4 grid max-h-[calc(100vh-64px)] flex-1 grid-cols-3 flex-col justify-items-center gap-4 overflow-y-auto p-2">
+        <div className="mt-4 grid max-h-[calc(100vh-64px)] flex-1 flex-col justify-items-center gap-4 overflow-y-auto p-2 lg:grid-cols-3">
           {notes?.map((note) => (
             <NoteCard
               key={note.id}
